@@ -8,6 +8,21 @@ function ENT:SetObjectHealth(health)
 	self:SetDTFloat(0, health)
 end
 
+function ENT:DrawBar(x, y, w, h, factor, text)
+	factor = math.Clamp(factor, 0, 1)
+	
+	local barwidth = w * factor
+	local startx = x - w / 2
+	local red, green = (1 - factor) * 255, (factor) * 255
+	
+	surface.SetDrawColor(0, 0, 0, 220)
+	surface.DrawRect(startx, y, w, h)
+	surface.SetDrawColor(red, green, 0, 220)
+	surface.DrawRect(startx + 4, y + 4, barwidth - 8, h - 8)
+	surface.DrawOutlinedRect(startx, y, w, h)
+	draw.SimpleText(text, "DermaLarge", x, y + h/2, Color(red, red, red, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+end
+
 local colFlash = Color(30, 255, 30)
 function ENT:Draw()
 	self:DrawModel()
@@ -26,11 +41,17 @@ function ENT:Draw()
 
 		if MySelf:Team() == TEAM_HUMAN and GAMEMODE:PlayerCanPurchase(MySelf) then
 			colFlash.a = math.abs(math.sin(CurTime() * 5)) * 255
-			draw.SimpleText(translate.Get("purchase_now"), "ZS3D2DFont2Small", 0, -64, colFlash, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			draw.SimpleText(translate.Get("purchase_now"), "ZS3D2DFont2Small", 0, -100, colFlash, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
-
+		
+		local healthfactor = self:GetObjectHealth() / self:GetMaxObjectHealth()
+		--local healthfactor = math.sin(CurTime() * 0.5)
+		if healthfactor < 1 then
+			self:DrawBar(0, 150, 550, 40, healthfactor, string.format("%i", healthfactor*100).."%")
+		end
+		
 		if owner:IsValid() and owner:IsPlayer() then
-			draw.SimpleText("("..owner:ClippedName()..")", "ZS3D2DFont2Small", 0, 64, owner == MySelf and COLOR_BLUE or COLOR_GRAY, TEXT_ALIGN_CENTER)
+			draw.SimpleText("("..owner:ClippedName()..")", "ZS3D2DFont2Small", 0, 100, owner == MySelf and COLOR_BLUE or COLOR_GRAY, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
 
 	cam.End3D2D()
