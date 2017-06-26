@@ -1,6 +1,6 @@
 # Zombie Survival Fixes
 
-Repository containing fixes and enhancements to the Zombie Survival gamemode due to them no longer being publically released or actively merged with the main repo.
+Repository containing fixes and enhancements to the Zombie Survival gamemode due to them no longer being publicly released or actively merged with the main repo.
 
 New features will not be included in this repo, unless they are needed as part of a fix or for balancing reasons. (No new weapons, zombie classes etc.)
 
