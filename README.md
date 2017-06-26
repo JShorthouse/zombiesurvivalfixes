@@ -12,7 +12,7 @@ Anyone is welcome to contribute. Please ensure that your changes are well docume
 
 For a full guide, see the old readme.txt
 
-All that is required to run the gamemode is to place the zombiesurvival directory into your srcds gamemode directory and then start your server with the ``-gamemode zombiesurvival`` flag.
+All that is required to run the gamemode is to place the zombiesurvival directory into your garry's mod server gamemode directory and then start your server with the ``+gamemode zombiesurvival`` flag.
 You can then load any ``zs_*`` map.
 
 ## License
