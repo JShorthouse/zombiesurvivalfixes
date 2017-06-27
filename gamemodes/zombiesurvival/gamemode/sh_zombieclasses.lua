@@ -9,6 +9,7 @@ function GM:IsClassUnlocked(classname)
 		if ret ~= nil then return ret end
 	end
 
+
 	return not classtab.Locked and (classtab.Unlocked or classtab.Wave and self:GetWave() >= classtab.Wave or not self:GetWaveActive() and self:GetWave() + 1 >= classtab.Wave)
 end
 
@@ -103,3 +104,15 @@ function GM:RegisterZombieClasses()
 end
 
 GM:RegisterZombieClasses()
+
+if CLIENT then
+	net.Receive( "unlockClass", function()
+		local targetName = net.ReadString()
+
+		for k, v in pairs(GAMEMODE.ZombieClasses) do
+			if(v.Name == targetName) then
+				v.Unlocked = true
+			end
+		end
+	end)
+end
