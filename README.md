@@ -29,7 +29,7 @@ The original gamemode is distributed under a custom license (See ``ORIGINAL_LICE
 * Zombie kill icons: Eisiger
 * Some HUD textures: Typhon
 * Ambient beat sounds: Austin "Little Nemo" Killey
-* Melee weapon models :Zombie Panic: Source 
+* Melee weapon models: Zombie Panic: Source 
 * Board Kit model: Samuel
 
 ### Additional Credits
