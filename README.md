@@ -33,3 +33,5 @@ The original gamemode is distributed under a custom license (See ``ORIGINAL_LICE
 * Board Kit model: Samuel
 
 ### Additional Credits
+* HD kill icons: Gregarious
+* HD kill icon addon: Swingflip
