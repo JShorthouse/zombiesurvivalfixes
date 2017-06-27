@@ -103,3 +103,16 @@ function GM:RegisterZombieClasses()
 end
 
 GM:RegisterZombieClasses()
+
+if CLIENT then
+	--Synchronise classes unlocked through infliction percentage to the client
+	net.Receive( "unlockClass", function()
+		local targetName = net.ReadString()
+
+		for k, v in pairs(GAMEMODE.ZombieClasses) do
+			if(v.Name == targetName) then
+				v.Unlocked = true
+			end
+		end
+	end)
+end

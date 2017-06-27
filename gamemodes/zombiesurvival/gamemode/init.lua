@@ -390,6 +390,8 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_pls_kill_pl")
 	util.AddNetworkString("zs_pl_kill_self")
 	util.AddNetworkString("zs_death")
+
+	util.AddNetworkString("unlockClass")
 end
 
 function GM:IsClassicMode()
@@ -972,7 +974,7 @@ function GM:CalculateNextBoss()
 			livingbosses = livingbosses + 1
 			if livingbosses >= 3 then return end
 		else
-			if ent:GetInfo("zs_nobosspick") == "0" then 
+			if ent:GetInfo("zs_nobosspick") == "0" then
 				table.insert(zombies, ent)
 			end
 		end
@@ -980,13 +982,13 @@ function GM:CalculateNextBoss()
 	table.sort(zombies, BossZombieSort)
 	local newboss = zombies[1]
 	local newbossclass = ""
-	
+
 	if newboss and newboss:IsValid() then newbossclass = GAMEMODE.ZombieClasses[newboss:GetBossZombieIndex()].Name end
 	net.Start("zs_nextboss")
 	net.WriteEntity(newboss)
 	net.WriteString(newbossclass)
 	net.Broadcast()
-	
+
 	return newboss
 end
 
@@ -1048,6 +1050,10 @@ function GM:CalculateInfliction(victim, attacker)
 						for _, pl in pairs(player.GetAll()) do
 							pl:CenterNotify(COLOR_RED, translate.ClientFormat(pl, "infliction_reached", v.Infliction * 100))
 							pl:CenterNotify(translate.ClientFormat(pl, "x_unlocked", translate.ClientGet(pl, v.TranslationName)))
+							--v.Unlocked = true will only set the class as unlocked serverside. Need to send a net message to inform the client.
+							net.Start("unlockClass")
+							net.WriteString(v.Name)
+							net.Send(pl)
 						end
 					end
 				end
@@ -1475,7 +1481,7 @@ function GM:PlayerReadyRound(pl)
 
 	local classid = pl:GetZombieClass()
 	pl:SetZombieClass(classid, true, pl)
-	
+
 	if self.OverrideStartingWorth then
 		pl:SendLua("GAMEMODE.StartingWorth="..tostring(self.StartingWorth))
 	end
@@ -1687,6 +1693,15 @@ function GM:PlayerInitialSpawnRound(pl)
 	if pl:Team() == TEAM_UNDEAD and self.StoredUndeadFrags[uniqueid] then
 		pl:SetFrags(self.StoredUndeadFrags[uniqueid])
 		self.StoredUndeadFrags[uniqueid] = nil
+	end
+
+	--Synchronise unlocked zombie classes to client
+	for k, v in ipairs(self.ZombieClasses) do
+		if v.Infliction and v.Unlocked == true then
+			net.Start("unlockClass")
+			net.WriteString(v.Name)
+			net.Send(pl)
+		end
 	end
 end
 
@@ -3343,7 +3358,7 @@ concommand.Add("zsgiveweaponclip", function(sender, command, arguments)
 	if GAMEMODE.ZombieEscape then return end
 
 	if not (sender:IsValid() and sender:Alive() and sender:Team() == TEAM_HUMAN) then return end
-	
+
 	local currentwep = sender:GetActiveWeapon()
 	if currentwep and currentwep:IsValid() then
 		local ent
@@ -3552,7 +3567,7 @@ function GM:PlayerSpawn(pl)
 			pl:Give(table.Random(self.ZombieEscapeWeapons))
 		else
 			pl:Give("weapon_zs_fists")
-			
+
 			if self.StartingLoadout then
 				self:GiveStartingLoadout(pl)
 			elseif pl.m_PreRedeem then
@@ -3661,7 +3676,7 @@ function GM:WaveStateChanged(newstate)
 			-- We should spawn a crate in a random spawn point if no one has any.
 			if not self.ZombieEscape and #ents.FindByClass("prop_arsenalcrate") == 0 then
 				local have = false
-				for _, pl in pairs(humans) do	
+				for _, pl in pairs(humans) do
 					if pl:HasWeapon("weapon_zs_arsenalcrate") then
 						have = true
 						break
