@@ -1,6 +1,6 @@
 "UnlitGeneric"
 {
-	"$basetexture" "zombiesurvival/killicons/legs"
+	"$basetexture" "zombiesurvival/killicons/shade_HD"
 	"$nolod" 1
 	"$nomip" 1
 	"$ignorez" 1
@@ -13,7 +13,7 @@
 		{
 			"animatedtexturevar" "$basetexture"
 			"animatedtextureframenumvar" "$frame"
-			"animatedtextureframerate" 5
+			"animatedtextureframerate" 3
 		}
 	}
 }
