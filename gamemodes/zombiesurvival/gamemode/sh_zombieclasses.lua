@@ -9,7 +9,6 @@ function GM:IsClassUnlocked(classname)
 		if ret ~= nil then return ret end
 	end
 
-
 	return not classtab.Locked and (classtab.Unlocked or classtab.Wave and self:GetWave() >= classtab.Wave or not self:GetWaveActive() and self:GetWave() + 1 >= classtab.Wave)
 end
 
@@ -106,6 +105,7 @@ end
 GM:RegisterZombieClasses()
 
 if CLIENT then
+	--Synchronise classes unlocked through infliction percentage to the client
 	net.Receive( "unlockClass", function()
 		local targetName = net.ReadString()
 
