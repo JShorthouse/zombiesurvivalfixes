@@ -94,6 +94,7 @@ local function ItemPanelThink(self)
 				self.m_NameLabel:InvalidateLayout()
 				self.m_BuyButton:SetImage("icon16/exclamation.png")
 			end
+			
 			self.m_BuyButton:SizeToContents()
 		end
 
