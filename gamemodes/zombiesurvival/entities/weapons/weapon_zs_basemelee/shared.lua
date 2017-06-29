@@ -104,7 +104,7 @@ function SWEP:PlayStartSwingSound()
 end
 
 function SWEP:PlayHitSound()
-	self:EmitSound("weapons/melee/golf club/golf_hit-0"..math.random(4)..".ogg")
+	self:EmitSound("weapons/melee/golf_club/golf_hit-0"..math.random(4)..".ogg")
 end
 
 function SWEP:PlayHitFleshSound()
@@ -289,7 +289,7 @@ function SWEP:SetWeaponHoldType( t )
 
 	t = string.lower( t )
 	local index = ActIndex[ t ]
-	
+
 	if ( index == nil ) then
 		Msg( "SWEP:SetWeaponHoldType - ActIndex[ \""..t.."\" ] isn't set! (defaulting to normal)\n" )
 		t = "normal"
@@ -310,12 +310,12 @@ function SWEP:SetWeaponHoldType( t )
 	self.ActivityTranslate [ ACT_RANGE_ATTACK1 ] 				= index+8
 	self.ActivityTranslate [ ACT_MP_SWIM_IDLE ] 				= index+8
 	self.ActivityTranslate [ ACT_MP_SWIM ] 						= index+9
-	
+
 	-- "normal" jump animation doesn't exist
 	if t == "normal" then
 		self.ActivityTranslate [ ACT_MP_JUMP ] = ACT_HL2MP_JUMP_SLAM
 	end
-	
+
 	-- these two aren't defined in ACTs for whatever reason
 	if t == "knife" || t == "melee2" then
 		self.ActivityTranslate [ ACT_MP_CROUCH_IDLE ] = nil
