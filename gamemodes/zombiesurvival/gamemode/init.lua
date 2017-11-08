@@ -909,7 +909,7 @@ function GM:Think()
 			if pl:Alive() then
 				if doafk then
 					local plpos = pl:GetPos()
-					if pl.LastAFKPosition and (pl.LastAFKPosition.x ~= plpos.x or pl.LastAFKPosition.y ~= plpos.y) then
+					if (pl.LastAFKPosition and (pl.LastAFKPosition.x ~= plpos.x or pl.LastAFKPosition.y ~= plpos.y)) or self.CheckedOut[pl:UniqueID()] then
 						pl.LastNotAFK = CurTime()
 					end
 					pl.LastAFKPosition = plpos
