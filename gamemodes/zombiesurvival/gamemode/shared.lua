@@ -168,9 +168,11 @@ function GM:SortZombieSpawnDistances(allplayers)
 	if #zspawns == 0 then
 		zspawns = team.GetValidSpawnPoint(TEAM_UNDEAD)
 	end
-
+	
 	for _, pl in pairs(allplayers) do
-		if pl:Team() == TEAM_UNDEAD or pl:GetInfo("zs_alwaysvolunteer") == "1" then
+		if pl:GetInfo("zs_alwaysvolunteer") == "1" then
+			pl._ZombieSpawnDistance = -2
+		elseif pl:Team() == TEAM_UNDEAD then
 			pl._ZombieSpawnDistance = -1
 		elseif CLIENT or pl.LastNotAFK and CurTime() <= pl.LastNotAFK + 60 then
 			local plpos = pl:GetPos()
@@ -186,7 +188,7 @@ function GM:SortZombieSpawnDistances(allplayers)
 			pl._ZombieSpawnDistance = 9999999
 		end
 	end
-
+	
 	table.sort(allplayers, self.ZombieSpawnDistanceSort)
 end
 

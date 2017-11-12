@@ -2684,47 +2684,32 @@ end
 
 function GM:SetClosestsToZombie()
 	local allplayers = player.GetAllActive()
-	local numplayers = #allplayers
-	if numplayers <= 1 then return end
+	if #allplayers <= 1 then return end
 
-	local desiredzombies = self:GetDesiredStartingZombies()
+	local desirednumzombies = self:GetDesiredStartingZombies()
 
 	self:SortZombieSpawnDistances(allplayers)
 
-	local zombies = {}
-	for _, pl in pairs(allplayers) do
-		if pl:Team() ~= TEAM_HUMAN or not pl:Alive() then
-			table.insert(zombies, pl)
-		end
-	end
-
-	-- Need to place some people back on the human team.
-	if #zombies > desiredzombies then
-		local toswap = #zombies - desiredzombies
-		for _, pl in pairs(zombies) do
-			if pl.DiedDuringWave0 and pl:GetInfo("zs_alwaysvolunteer") ~= "1" then
+	local numzombies = 0;
+	for _, pl in ipairs(allplayers) do
+		if numzombies < desirednumzombies then
+			if pl:Team() ~= TEAM_UNDEAD then
+				pl:ChangeTeam(TEAM_UNDEAD)
+				self.PreviouslyDied[pl:UniqueID()] = CurTime()
+			end
+			pl:SetFrags(0)
+			pl:SetDeaths(0)
+			self.StartingZombie[pl:UniqueID()] = true
+			pl:UnSpectateAndSpawn()
+			numzombies = numzombies + 1
+		else
+			if pl.DiedDuringWave0 then
 				pl:SetTeam(TEAM_HUMAN)
 				pl:UnSpectateAndSpawn()
-				toswap = toswap - 1
-				if toswap <= 0 then
-					break
-				end
 			end
 		end
 	end
-
-	for i = 1, desiredzombies do
-		local pl = allplayers[i]
-		if pl:Team() ~= TEAM_UNDEAD then
-			pl:ChangeTeam(TEAM_UNDEAD)
-			self.PreviouslyDied[pl:UniqueID()] = CurTime()
-		end
-		pl:SetFrags(0)
-		pl:SetDeaths(0)
-		self.StartingZombie[pl:UniqueID()] = true
-		pl:UnSpectateAndSpawn()
-	end
-
+	
 	for _, pl in pairs(allplayers) do
 		if pl:Team() == TEAM_HUMAN and pl._ZombieSpawnDistance <= 128 then
 			pl:SetPos(self:PlayerSelectSpawn(pl):GetPos())
