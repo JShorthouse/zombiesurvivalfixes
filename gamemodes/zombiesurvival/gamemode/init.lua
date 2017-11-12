@@ -361,6 +361,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_centernotify")
 	util.AddNetworkString("zs_topnotify")
 	util.AddNetworkString("zs_zvols")
+	util.AddNetworkString("zs_alwayszvols")
 	util.AddNetworkString("zs_nextboss")
 	util.AddNetworkString("zs_classunlock")
 
@@ -847,9 +848,22 @@ end
 function GM:SendZombieVolunteers(pl, nonemptyonly)
 	if nonemptyonly and #self.ZombieVolunteers == 0 then return end
 
+	--Send list of selected zombies
 	net.Start("zs_zvols")
 		net.WriteUInt(#self.ZombieVolunteers, 8)
 		for _, p in ipairs(self.ZombieVolunteers) do
+			net.WriteEntity(p)
+		end
+	if pl then
+		net.Send(pl)
+	else
+		net.Broadcast()
+	end
+	
+	--Send list of people set to "always volunteer"
+	net.Start("zs_alwayszvols")
+		net.WriteUInt(#self.ZombieAlwaysVolunteers, 8)
+		for _, p in ipairs(self.ZombieAlwaysVolunteers) do
 			net.WriteEntity(p)
 		end
 	if pl then
@@ -948,9 +962,16 @@ function GM:CalculateZombieVolunteers()
 	for i = 1, self:GetDesiredStartingZombies() do
 		volunteers[i] = allplayers[i]
 	end
+	
+	local alwaysVols = {}
+	for k, pl in pairs(volunteers) do
+		if pl:IsValid() and pl:GetInfo("zs_alwaysvolunteer") == "1" then
+			alwaysVols[k] = pl
+		end
+	end
 
 	local mismatch = false
-	if #volunteers ~= #self.ZombieVolunteers then
+	if #volunteers ~= #self.ZombieVolunteers or #alwaysVols ~= #self.ZombieAlwaysVolunteers then
 		mismatch = true
 	else
 		for i=1, #volunteers do
@@ -960,7 +981,17 @@ function GM:CalculateZombieVolunteers()
 			end
 		end
 	end
+	if not mismatch then
+		for i=1, #alwaysVols do
+			if alwaysVols[i] ~= self.ZombieAlwaysVolunteers[i] then
+				mismatch = true
+				break
+			end
+		end
+	end
+	
 	if mismatch then
+		self.ZombieAlwaysVolunteers = alwaysVols
 		self.ZombieVolunteers = volunteers
 		self:SendZombieVolunteers()
 	end

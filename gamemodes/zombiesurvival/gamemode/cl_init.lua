@@ -672,7 +672,14 @@ function GM:HumanHUD(screenscale)
 			txth = draw_GetFontHeight("ZSHUDFontTiny")
 			for i, pl in ipairs(self.ZombieVolunteers) do
 				if pl:IsValid() then
-					draw_SimpleTextBlurry(pl:Name(), "ZSHUDFontTiny", w * 0.5, y, pl == MySelf and COLOR_RED or COLOR_GRAY, TEXT_ALIGN_CENTER)
+					local color = COLOR_GRAY
+					if table.HasValue(self.ZombieAlwaysVolunteers, pl) then
+						color = COLOR_DARKGREEN
+					elseif pl == MySelf then
+						color = COLOR_RED
+					end
+				
+					draw_SimpleTextBlurry(pl:Name(), "ZSHUDFontTiny", w * 0.5, y, color, TEXT_ALIGN_CENTER)
 					y = y + txth
 				end
 			end
@@ -1685,6 +1692,16 @@ net.Receive("zs_zvols", function(length)
 	end
 
 	GAMEMODE.ZombieVolunteers = volunteers
+end)
+
+net.Receive("zs_alwayszvols", function(length)
+	local alwaysvolunteers = {}
+	local count = net.ReadUInt(8)
+	for i=1, count do
+		alwaysvolunteers[i] = net.ReadEntity()
+	end
+
+	GAMEMODE.ZombieAlwaysVolunteers = alwaysvolunteers
 end)
 
 net.Receive("zs_dmg", function(length)
