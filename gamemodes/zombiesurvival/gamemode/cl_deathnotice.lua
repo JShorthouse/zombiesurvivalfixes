@@ -225,6 +225,32 @@ net.Receive("zs_pls_kill_pl", function(length)
 	end
 end)
 
+net.Receive("zs_world_and_pls_kill_pl", function(length)
+	local victim = net.ReadEntity()
+	local attacker = net.ReadString()
+	local assister = net.ReadEntity()
+
+	local victimteam = net.ReadUInt(16)
+	local attackerteam = net.ReadUInt(16)
+
+	if victim:IsValid() and assister:IsValid() then
+		local victimname = victim:Name()
+		local attackername = attacker -- REDUNDANT
+		local assistername = assister:Name()
+
+		if victim == MySelf and victimteam == TEAM_HUMAN then
+			gamemode.Call("LocalPlayerDied", attackername.." and "..assistername)
+		end
+
+		victim:CallZombieFunction("OnKilled", attacker, attacker, attacker == victim, false, DamageInfo())
+
+		print(ents.GetPrettyWorldInflictorName( attacker ).." and "..assistername.." killed "..victimname)
+
+		--gamemode.Call("AddDeathNotice", attackername.." and "..assistername, attackerteam, inflictor, victimname, victimteam, headshot)
+		GAMEMODE:TopNotify(COLOR_RED, ents.GetPrettyWorldInflictorName( attacker ), " and ", assister, " ", {deathicon = attacker}, " ", victim)
+	end
+end)
+
 net.Receive("zs_pl_kill_self", function(length)
 	local victim = net.ReadEntity()
 	local victimteam = net.ReadUInt(16)
@@ -263,7 +289,7 @@ end)
 net.Receive("zs_death", function(length)
 	local victim = net.ReadEntity()
 	local inflictor = net.ReadString()
-	local attacker = "#" .. net.ReadString()
+	local attacker = net.ReadString()
 	local victimteam = net.ReadUInt(16)
 
 	if victim:IsValid() then
@@ -271,14 +297,14 @@ net.Receive("zs_death", function(length)
 			gamemode.Call("LocalPlayerDied")
 		end
 
-		victim:CallZombieFunction("OnKilled", attacker, NULL, attacker == victim, false, DamageInfo())
+		victim:CallZombieFunction("OnKilled", "#" .. attacker, NULL, attacker == victim, false, DamageInfo())
 
 		local victimname = victim:Name()
 
-		print(victimname.." was killed by "..attacker.." with "..inflictor)
+		print(victimname.." was killed by "..ents.GetPrettyWorldInflictorName( attacker ).." with "..inflictor)
 
 		--gamemode.Call("AddDeathNotice", attacker, -1, inflictor, victimname, victimteam)
-		GAMEMODE:TopNotify(COLOR_RED, attacker, " ", {deathicon = inflictor}, " ", victim)
+		GAMEMODE:TopNotify(COLOR_RED, ents.GetPrettyWorldInflictorName( attacker ), " ", {deathicon = inflictor}, " ", victim)
 	end
 end)
 

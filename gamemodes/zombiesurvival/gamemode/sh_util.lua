@@ -293,3 +293,17 @@ function tonumbersafe(a)
 
 	return nil
 end
+
+local worldinflictors = {trigger_hurt = "World", env_fire = "Fire",  
+	func_move_linear = "Moving Object", func_rotating = "Rotating Object" }
+
+function ents.IsWorldInflictior( ent )
+	-- Checking for Entity:MapCreationID() might be a more robust implementation
+	if ent and worldinflictors[ent:GetClass()] then return true
+	else return false end
+end
+
+function ents.GetPrettyWorldInflictorName( name )
+	if worldinflictors[name] then name = worldinflictors[name] end
+	return name
+end

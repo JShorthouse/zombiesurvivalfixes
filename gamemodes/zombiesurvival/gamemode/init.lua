@@ -390,6 +390,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_pl_kill_pl")
 	util.AddNetworkString("zs_pls_kill_pl")
 	util.AddNetworkString("zs_pl_kill_self")
+	util.AddNetworkString("zs_world_and_pls_kill_pl")
 	util.AddNetworkString("zs_death")
 
 	util.AddNetworkString("unlockClass")
@@ -2777,7 +2778,10 @@ function GM:PlayerHurt(victim, attacker, healthremaining, damage)
 
 	if attacker:IsValid() then
 		if attacker:IsPlayer() then
+			print("Setting last attacker to " ..tostring(attacker))
 			victim:SetLastAttacker(attacker)
+			
+			print(tostring(victim) .. "     " .. tostring(victim:GetLastAttacker() or nil))
 
 			local myteam = attacker:Team()
 			local otherteam = victim:Team()
@@ -3041,6 +3045,35 @@ local function DelayedChangeToZombie(pl)
 	end
 end
 
+function GM:WorldKilledZombie(pl, worldent, inflictor, dmginfo)
+	if (pl:GetZombieClassTable().Points or 0) == 0 or self.RoundEnded then return end
+	
+	local totaldamage = pl:GetMaxHealth()
+	local mostassistdamage = 0
+	local halftotaldamage = totaldamage / 2
+	local mostdamager
+
+	for otherpl, dmg in pairs(pl.DamagedBy) do
+		print( tostring(otherpl) .. "   " .. tostring(dmg))
+		if otherpl ~= attacker and otherpl:IsValid() and otherpl:Team() == TEAM_HUMAN and dmg > mostassistdamage and dmg >= halftotaldamage then
+			mostassistdamage = dmg
+			mostdamager = otherpl
+		end
+	end
+
+	if mostdamager then
+		mostdamager:PointCashOut(pl, FM_LOCALASSISTOTHERKILL)
+		mostdamager.ZombiesKilledAssists = mostdamager.ZombiesKilledAssists + 1
+	end
+
+	gamemode.Call("PostWorldKilledZombie", pl, worldent, inflictor, dmginfo, mostdamager, mostassistdamage)
+
+	return mostdamager
+end
+
+function GM:PostWorldKilledZombie(pl, worldent, inflictor, dmginfo, mostdamager, mostassistdamage)
+end
+
 function GM:DoPlayerDeath(pl, attacker, dmginfo)
 	pl:RemoveStatus("confusion", false, true)
 	pl:RemoveStatus("ghoultouch", false, true)
@@ -3055,7 +3088,6 @@ function GM:DoPlayerDeath(pl, attacker, dmginfo)
 	local headshot = pl:LastHitGroup() == HITGROUP_HEAD and pl.m_LastHeadShot and CurTime() <= pl.m_LastHeadShot + 0.1
 
 	if suicide then attacker = pl:GetLastAttacker() or attacker end
-	pl:SetLastAttacker()
 
 	if inflictor == NULL then inflictor = attacker end
 
@@ -3117,6 +3149,10 @@ function GM:DoPlayerDeath(pl, attacker, dmginfo)
 				assistpl = gamemode.Call("HumanKilledZombie", pl, attacker, inflictor, dmginfo, headshot, suicide)
 			end
 		end
+		
+		if ents.IsWorldInflictior( attacker ) then
+			assistpl = gamemode.Call("WorldKilledZombie", pl, worldent, inflictor, dmginfo)
+		end
 
 		if not revive and (pl.LifeBarricadeDamage ~= 0 or pl.LifeHumanDamage ~= 0 or pl.LifeBrainsEaten ~= 0) then
 			net.Start("zs_lifestats")
@@ -3133,6 +3169,12 @@ function GM:DoPlayerDeath(pl, attacker, dmginfo)
 		pl:PlayDeathSound()
 
 		if attacker:IsPlayer() and attacker ~= pl then
+			gamemode.Call("ZombieKilledHuman", pl, attacker, inflictor, dmginfo, headshot, suicide)
+		end
+		
+		-- Account for humans being knocked off heights by zombies and purposefully suiciding
+		if ents.IsWorldInflictior( attacker ) and pl.LastAttacked and (CurTime() -pl.LastAttacked) < 5 and pl:GetLastAttacker() and pl:GetLastAttacker():IsValid() then
+			attacker = pl:GetLastAttacker()
 			gamemode.Call("ZombieKilledHuman", pl, attacker, inflictor, dmginfo, headshot, suicide)
 		end
 
@@ -3168,6 +3210,8 @@ function GM:DoPlayerDeath(pl, attacker, dmginfo)
 			hands:Remove()
 		end
 	end
+	
+	pl:SetLastAttacker()
 
 	if revive or pl:CallZombieFunction("NoDeathMessage", attacker, dmginfo) or pl:IsSpectator() then return end
 
@@ -3201,6 +3245,14 @@ function GM:DoPlayerDeath(pl, attacker, dmginfo)
 		end
 
 		gamemode.Call("PlayerKilledByPlayer", pl, attacker, inflictor, headshot, dmginfo)
+	elseif ents.IsWorldInflictior( attacker ) and assistpl then
+		net.Start("zs_world_and_pls_kill_pl")
+			net.WriteEntity(pl)
+			net.WriteString( attacker:GetClass() )
+			net.WriteEntity(assistpl)
+			net.WriteUInt(plteam, 16)
+			net.WriteUInt(assistpl:Team(), 16)
+		net.Broadcast()
 	else
 		net.Start("zs_death")
 			net.WriteEntity(pl)
