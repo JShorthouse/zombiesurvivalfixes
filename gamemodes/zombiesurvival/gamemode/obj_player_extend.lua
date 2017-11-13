@@ -426,7 +426,6 @@ function meta:ShouldBarricadeGhostWith(ent)
 end
 
 function meta:BarricadeGhostingThink()
-	print( tostring( self:GetMoveType() ))
 	if self:KeyDown(IN_ZOOM) or self:ActiveBarricadeGhosting() or self:GetMoveType() == MOVETYPE_LADDER then
 		if self.FirstGhostThink then
 			self:SetLocalVelocity( Vector( 0, 0, 0 ) )
