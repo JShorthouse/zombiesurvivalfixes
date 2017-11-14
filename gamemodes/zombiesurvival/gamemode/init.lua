@@ -2789,7 +2789,6 @@ function GM:PlayerHurt(victim, attacker, healthremaining, damage)
 
 	if attacker:IsValid() then
 		if attacker:IsPlayer() then
-			print("Setting last attacker to " ..tostring(attacker))
 			victim:SetLastAttacker(attacker)
 			
 			print(tostring(victim) .. "     " .. tostring(victim:GetLastAttacker() or nil))
