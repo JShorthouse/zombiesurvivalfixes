@@ -41,6 +41,7 @@ function ENT:AcceptInput(name, activator, caller, args)
 				v.Locked = false
 			end
 		end
+		GAMEMODE:SynchronizeZombieUnlocks();
 	elseif name == "defaultclass" then
 		local classname = string.lower(args)
 		for k, v in ipairs(GAMEMODE.ZombieClasses) do

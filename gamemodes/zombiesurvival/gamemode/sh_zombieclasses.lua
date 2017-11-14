@@ -105,14 +105,11 @@ end
 GM:RegisterZombieClasses()
 
 if CLIENT then
-	--Synchronise classes unlocked through infliction percentage to the client
-	net.Receive( "unlockClass", function()
-		local targetName = net.ReadString()
-
-		for k, v in pairs(GAMEMODE.ZombieClasses) do
-			if(v.Name == targetName) then
-				v.Unlocked = true
-			end
-		end
+	-- This netmessage is only sent when server side events happen that differ from the
+	-- normal unlock progression (e.g. infliction level reached, logic_classunlock triggered)
+	net.Receive( "zs_update_class_unlocks", function()
+			local name = net.ReadString()
+			local unlocked = net.ReadBool()
+			GAMEMODE.ZombieClasses[name].Unlocked = unlocked
 	end)
 end

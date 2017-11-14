@@ -392,8 +392,7 @@ function GM:AddNetworkStrings()
 	util.AddNetworkString("zs_pl_kill_self")
 	util.AddNetworkString("zs_world_and_pls_kill_pl")
 	util.AddNetworkString("zs_death")
-
-	util.AddNetworkString("unlockClass")
+	util.AddNetworkString("zs_update_class_unlocks")
 end
 
 function GM:IsClassicMode()
@@ -1073,24 +1072,23 @@ function GM:CalculateInfliction(victim, attacker)
 	end
 
 	if not self:IsClassicMode() and not self.ZombieEscape and not self:IsBabyMode() and not self.PantsMode then
+		local inflictionunlock = false
 		for k, v in ipairs(self.ZombieClasses) do
 			if v.Infliction and infliction >= v.Infliction and not self:IsClassUnlocked(v.Name) then
 				v.Unlocked = true
 
 				if not self.PantsMode and not self:IsClassicMode() and not self:IsBabyMode() and not self.ZombieEscape then
 					if not v.Locked then
+						inflictionunlock = true
 						for _, pl in pairs(player.GetAll()) do
 							pl:CenterNotify(COLOR_RED, translate.ClientFormat(pl, "infliction_reached", v.Infliction * 100))
 							pl:CenterNotify(translate.ClientFormat(pl, "x_unlocked", translate.ClientGet(pl, v.TranslationName)))
-							--v.Unlocked = true will only set the class as unlocked serverside. Need to send a net message to inform the client.
-							net.Start("unlockClass")
-							net.WriteString(v.Name)
-							net.Send(pl)
 						end
 					end
 				end
 			end
 		end
+		self:SynchronizeZombieUnlocks()
 	end
 
 	for _, ent in pairs(ents.FindByClass("logic_infliction")) do
@@ -1611,6 +1609,26 @@ function GM:PlayerInitialSpawn(pl)
 	gamemode.Call("PlayerInitialSpawnRound", pl)
 end
 
+-- This method only needs to be called when server side events happen that differ from the
+-- normal unlock progression (e.g. infliction level reached, logic_classunlock triggered)
+function GM:SynchronizeZombieUnlocks(pl, className)
+	if className then
+		if self.ZombieClasses[className] then
+			net.Start( "zs_update_class_unlocks" )
+			net.WiteString( v.Name )
+			net.WriteBool( v.Unlocked )
+			if pl then net.Send( pl ) else net.Broadcast() end
+		end
+	else
+		for _, v in pairs(self.ZombieClasses) do
+			net.Start( "zs_update_class_unlocks" )
+			net.WriteString( v.Name )
+			net.WriteBool( v.Unlocked )
+			if pl then net.Send( pl ) else net.Broadcast() end
+		end
+	end
+end
+
 function GM:PlayerInitialSpawnRound(pl)
 	pl:SprintDisable()
 	if pl:KeyDown(IN_WALK) then
@@ -1727,14 +1745,7 @@ function GM:PlayerInitialSpawnRound(pl)
 		self.StoredUndeadFrags[uniqueid] = nil
 	end
 
-	--Synchronise unlocked zombie classes to client
-	for k, v in ipairs(self.ZombieClasses) do
-		if v.Infliction and v.Unlocked == true then
-			net.Start("unlockClass")
-			net.WriteString(v.Name)
-			net.Send(pl)
-		end
-	end
+  self:SynchronizeZombieUnlocks( pl )
 end
 
 function GM:GetDynamicSpawning()
