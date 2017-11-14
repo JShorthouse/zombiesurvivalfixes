@@ -2790,8 +2790,6 @@ function GM:PlayerHurt(victim, attacker, healthremaining, damage)
 	if attacker:IsValid() then
 		if attacker:IsPlayer() then
 			victim:SetLastAttacker(attacker)
-			
-			print(tostring(victim) .. "     " .. tostring(victim:GetLastAttacker() or nil))
 
 			local myteam = attacker:Team()
 			local otherteam = victim:Team()
@@ -3064,7 +3062,6 @@ function GM:WorldKilledZombie(pl, worldent, inflictor, dmginfo)
 	local mostdamager
 
 	for otherpl, dmg in pairs(pl.DamagedBy) do
-		print( tostring(otherpl) .. "   " .. tostring(dmg))
 		if otherpl ~= attacker and otherpl:IsValid() and otherpl:Team() == TEAM_HUMAN and dmg > mostassistdamage and dmg >= halftotaldamage then
 			mostassistdamage = dmg
 			mostdamager = otherpl
