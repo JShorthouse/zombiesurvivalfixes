@@ -16,10 +16,12 @@ local ClipHullBullets = {
 function meta:ClipHullTraceHull(distance, size, start, dir)
 	start = start or self:GetShootPos()
 	dir = dir or self:GetAimVector()
+	distance = distance
 
 	ClipHullBullets.Src = start
 	ClipHullBullets.Dir = dir
 	ClipHullBullets.HullSize = size
+	ClipHullBullets.Distance = distance
 	ClipHullBulletsResult = nil
 	self:FireBullets(ClipHullBullets)
 
