@@ -150,9 +150,9 @@ function SWEP:MeleeSwing()
 
 	local filter = owner:GetMeleeFilter()
 
-	--owner:LagCompensation(true)
+	owner:LagCompensation(true)
 
-	local tr = owner:ClipHullMeleeTrace(self.MeleeRange, self.MeleeSize, filter)
+	local tr = owner:MeleeTrace(self.MeleeRange, self.MeleeSize, filter)
 	if tr.Hit then
 		local damagemultiplier = (owner.BuffMuscular and owner:Team()==TEAM_HUMAN) and 1.2 or 1
 		local damage = self.MeleeDamage * damagemultiplier
@@ -179,7 +179,7 @@ function SWEP:MeleeSwing()
 		end
 
 		if self.OnMeleeHit and self:OnMeleeHit(hitent, hitflesh, tr) then
-			--owner:LagCompensation(false)
+			owner:LagCompensation(false)
 			return
 		end
 
@@ -247,7 +247,7 @@ function SWEP:MeleeSwing()
 		if self.PostOnMeleeMiss then self:PostOnMeleeMiss(tr) end
 	end
 
-	--owner:LagCompensation(false)
+	owner:LagCompensation(false)
 end
 
 function SWEP:StopSwinging()
@@ -317,7 +317,7 @@ function SWEP:SetWeaponHoldType( t )
 	end
 
 	-- these two aren't defined in ACTs for whatever reason
-	if t == "knife" || t == "melee2" then
+	if t == "knife" or t == "melee2" then
 		self.ActivityTranslate [ ACT_MP_CROUCH_IDLE ] = nil
 	end
 end
