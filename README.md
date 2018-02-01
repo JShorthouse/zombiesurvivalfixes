@@ -1,5 +1,8 @@
-# This is a fork of JShorthouse's Zombie Survival gamemode!
-I made this fork for my very own server so I can share the fixes I made and additions for other server hosts and for JShorthouse's fork of Zombie Survival.
+# Zombie Survival Fixes
+
+Repository containing fixes and enhancements to the Zombie Survival gamemode due to them no longer being publicly released or actively merged with the main repo.
+
+New features will not be included in this repo, unless they are needed as part of a fix or for balancing reasons. (No new weapons, zombie classes etc.)
 
 ## Contributing
 
