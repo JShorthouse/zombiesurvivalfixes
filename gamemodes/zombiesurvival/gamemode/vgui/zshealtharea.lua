@@ -83,12 +83,12 @@ end
 function PANEL:PerformLayout()
 	local screenscale = BetterScreenScale()
 
-	self:SetSize(screenscale * 350, screenscale * 168)
+	self:SetSize(screenscale * 350, screenscale * 128)
 
-	self.HealthModel:SetWide(self:GetTall() - 28)
+	self.HealthModel:SetWide(self:GetTall())
 
 	self:AlignLeft(screenscale * 24)
-	self:AlignBottom(screenscale * 2)
+	self:AlignBottom(screenscale * 24)
 end
 
 function PANEL:Paint()
