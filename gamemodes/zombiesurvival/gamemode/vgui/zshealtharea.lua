@@ -88,7 +88,6 @@ function PANEL:PerformLayout()
 	self.HealthModel:SetWide(self:GetTall() - 28)
 
 	self:AlignLeft(screenscale * 24)
-	--24 12 10
 	self:AlignBottom(screenscale * 2)
 end
 
