@@ -1,6 +1,6 @@
 # Zombie Survival Fixes
 
-Repository containing fixes and enhancements to the Zombie Survival gamemode due to them no longer being publically released or actively merged with the main repo.
+Repository containing fixes and enhancements to the Zombie Survival gamemode due to them no longer being publicly released or actively merged with the main repo.
 
 New features will not be included in this repo, unless they are needed as part of a fix or for balancing reasons. (No new weapons, zombie classes etc.)
 
@@ -12,7 +12,7 @@ Anyone is welcome to contribute. Please ensure that your changes are well docume
 
 For a full guide, see the old readme.txt
 
-All that is required to run the gamemode is to place the zombiesurvival directory into your srcds gamemode directory and then start your server with the ``-gamemode zombiesurvival`` flag.
+All that is required to run the gamemode is to place the zombiesurvival directory into your garry's mod server gamemode directory and then start your server with the ``+gamemode zombiesurvival`` flag.
 You can then load any ``zs_*`` map.
 
 ## License
@@ -29,7 +29,9 @@ The original gamemode is distributed under a custom license (See ``ORIGINAL_LICE
 * Zombie kill icons: Eisiger
 * Some HUD textures: Typhon
 * Ambient beat sounds: Austin "Little Nemo" Killey
-* Melee weapon models :Zombie Panic: Source 
+* Melee weapon models: Zombie Panic: Source 
 * Board Kit model: Samuel
 
 ### Additional Credits
+* HD kill icons: Gregarious
+* HD kill icon addon: Swingflip
